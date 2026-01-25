@@ -592,3 +592,32 @@ netstat -tlnp | grep 7171
 1. **Read the assignment**: `Assignment.md` has detailed requirements.
 2. **Review test cases**: Tests show expected behavior
 3. Ping your instructor with specific questions
+
+---
+
+## Submission Details
+
+### Design Choices & Optimizations
+1.  **O(1) Storage with OrderedDict**:
+    -   Used `collections.OrderedDict` for the core storage to achieve O(1) average time complexity for `put`, `get`, `delete`, and `exists`.
+    -   Leveraged `move_to_end()` for efficient LRU updates without manual linked list implementation.
+2.  **Asyncio TCP Server**:
+    -   Implemented a fully asynchronous server using `asyncio.start_server`.
+    -   Each client connection is handled in a separate lightweight coroutine (`handle_client`), allowing thousands of concurrent connections without thread overhead.
+3.  **Lazy TTL Expiration**:
+    -   Implemented lazy expiration: keys are checked for expiration only upon access (`get` or `exists`). This avoids the overhead of a dedicated cleanup thread.
+    -   Added `cleanup_expired()` for optional active cleanup.
+4.  **Protocol Parsing**:
+    -   Strict input validation (length limits) to prevent buffer overflow attacks.
+    -   Efficient string manipulation and error handling.
+
+### AWS Load Test Results
+The solution was deployed to AWS (T3 Small instances) and tested with the following results:
+
+-   **Requests/Second**: 10,143 (Target: > 5,000) ✅
+-   **Mean Latency**: 9.81ms (Target: < 10ms) ✅
+-   **Error Rate**: 0.00% (Target: 0%) ✅
+-   **Connections**: 100 concurrent
+-   **Total Requests**: 100,000
+
+Full results are available in `results/load_test_results.json`.
