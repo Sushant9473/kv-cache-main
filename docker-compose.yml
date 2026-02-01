@@ -1,0 +1,94 @@
+# =============================================================================
+# KV-Cache Distributed Cluster - Docker Compose
+# =============================================================================
+# This file defines a 3-node distributed KV-Cache cluster with sharding
+# and replication.
+#
+# Start:  docker compose up -d
+# Stop:   docker compose down
+# Logs:   docker compose logs -f
+# Test:   echo "PUT test hello" | nc localhost 7171
+# =============================================================================
+
+services:
+  node1:
+    build: .
+    container_name: kv-cache-node1
+    hostname: node1
+    ports:
+      - "7171:7171"
+    environment:
+      - KV_NODE_ID=1
+      - KV_STANDALONE_MODE=false
+      - KV_CACHE_HOST=0.0.0.0
+      - KV_CACHE_PORT=7171
+      - KV_NODE1_HOST=node1
+      - KV_NODE1_PORT=7171
+      - KV_NODE2_HOST=node2
+      - KV_NODE2_PORT=7172
+      - KV_NODE3_HOST=node3
+      - KV_NODE3_PORT=7173
+    networks:
+      - kv-cluster
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo 'EXISTS healthcheck' | nc -w 2 localhost 7171 | grep -q 'OK'"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  node2:
+    build: .
+    container_name: kv-cache-node2
+    hostname: node2
+    ports:
+      - "7172:7172"
+    environment:
+      - KV_NODE_ID=2
+      - KV_STANDALONE_MODE=false
+      - KV_CACHE_HOST=0.0.0.0
+      - KV_CACHE_PORT=7172
+      - KV_NODE1_HOST=node1
+      - KV_NODE1_PORT=7171
+      - KV_NODE2_HOST=node2
+      - KV_NODE2_PORT=7172
+      - KV_NODE3_HOST=node3
+      - KV_NODE3_PORT=7173
+    networks:
+      - kv-cluster
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo 'EXISTS healthcheck' | nc -w 2 localhost 7172 | grep -q 'OK'"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  node3:
+    build: .
+    container_name: kv-cache-node3
+    hostname: node3
+    ports:
+      - "7173:7173"
+    environment:
+      - KV_NODE_ID=3
+      - KV_STANDALONE_MODE=false
+      - KV_CACHE_HOST=0.0.0.0
+      - KV_CACHE_PORT=7173
+      - KV_NODE1_HOST=node1
+      - KV_NODE1_PORT=7171
+      - KV_NODE2_HOST=node2
+      - KV_NODE2_PORT=7172
+      - KV_NODE3_HOST=node3
+      - KV_NODE3_PORT=7173
+    networks:
+      - kv-cluster
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo 'EXISTS healthcheck' | nc -w 2 localhost 7173 | grep -q 'OK'"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+networks:
+  kv-cluster:
+    driver: bridge

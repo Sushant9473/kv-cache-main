@@ -13,6 +13,9 @@ from dataclasses import dataclass
 class Settings:
     """Server configuration settings."""
 
+    # Cluster settings
+    NODE_ID: int = int(os.environ.get("KV_NODE_ID", "1"))
+    
     # Network settings
     HOST: str = os.environ.get("KV_CACHE_HOST", "0.0.0.0")
     PORT: int = int(os.environ.get("KV_CACHE_PORT", "7171"))

@@ -58,6 +58,13 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--node-id",
+        type=int,
+        default=settings.NODE_ID,
+        help="Node ID in the cluster (1, 2, or 3)",
+    )
+
+    parser.add_argument(
         "--debug",
         action="store_true",
         help="Enable debug logging",
@@ -90,8 +97,8 @@ def main() -> None:
     # Create store with specified max size
     store = KVStore(max_size=args.max_keys)
 
-    # Create server
-    server = KVServer(host=args.host, port=args.port, store=store)
+    # Create server with cluster support
+    server = KVServer(host=args.host, port=args.port, store=store, node_id=args.node_id)
 
     # Get or create event loop
     try:
@@ -118,9 +125,10 @@ def main() -> None:
             )
 
     # Log startup info
-    logger.info(f"Starting KV-Cache server")
+    logger.info(f"Starting KV-Cache server (Node {args.node_id})")
     logger.info(f"  Host: {args.host}")
     logger.info(f"  Port: {args.port}")
+    logger.info(f"  Node ID: {args.node_id}")
     logger.info(f"  Max keys: {args.max_keys}")
     logger.info(f"  Debug: {args.debug}")
 
