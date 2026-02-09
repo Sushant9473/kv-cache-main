@@ -249,7 +249,7 @@ class KVServer:
         else:
             # Forward to the primary node
             primary_node = self.cluster_config.get_primary_node_for_shard(shard_id)
-            logger.debug(f"Forwarding command for key '{command.key}' to node {primary_node.node_id}")
+            logger.info(f"FORWARDING key for key '{command.key}' to node {primary_node.node_id}")
             
             try:
                 response = await self.node_client.forward_request(primary_node, command_str)
@@ -286,7 +286,7 @@ class KVServer:
             
             # Don't replicate to ourselves
             if replica_node.node_id != self.cluster_config.current_node_id:
-                logger.debug(f"Replicating to node {replica_node.node_id}")
+                logger.info(f"REPLICATING key '{command.key}' to node {replica_node.node_id}")
                 
                 try:
                     # Build the command to replicate
@@ -307,7 +307,7 @@ class KVServer:
                         # Still return success as per synchronous replication
                         # (In production you might want to handle this differently)
                     else:
-                        logger.debug(f"Replication successful: {replica_response}")
+                        logger.info(f"REPLICATION successful: {replica_response}")
                         
                 except Exception as e:
                     logger.error(f"Replication error: {e}")
